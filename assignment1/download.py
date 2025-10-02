@@ -84,6 +84,9 @@ def extract_mnist_data(files):
             # 跳过前16字节的头部信息
             f.read(16)
             data = f.read()
+        # 确保数据是bytes类型
+        if isinstance(data, str):
+            data = data.encode('latin-1')
         return np.frombuffer(data, dtype=np.uint8).reshape(-1, 28, 28)
     
     def read_labels(filename):
@@ -92,6 +95,9 @@ def extract_mnist_data(files):
             # 跳过前8字节的头部信息
             f.read(8)
             data = f.read()
+        # 确保数据是bytes类型
+        if isinstance(data, str):
+            data = data.encode('latin-1')
         return np.frombuffer(data, dtype=np.uint8)
     
     try:

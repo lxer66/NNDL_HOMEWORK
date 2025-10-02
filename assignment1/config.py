@@ -20,7 +20,7 @@ class Config:
         self.weight_init = 'random'
         
         # 训练配置
-        self.epochs = 100  # 将默认训练轮数从50改为100
+        self.epochs = 100 
         self.batch_size = 64
         self.learning_rate = 0.01
         
@@ -38,7 +38,7 @@ class Config:
         
         # 正则化参数
         self.lambda_reg = 0.01      # L1/L2正则化系数
-        self.dropout_rate = 0.1     # Dropout比例，默认值改为0.1
+        self.dropout_rate = 0.1     # Dropout比例
         
         # 数据增强参数
         self.rotation_range = 5
@@ -53,9 +53,8 @@ class Config:
         
         # 输出配置
         self.save_model = True
-        self.model_dir = 'models'  # 修改为实际使用的'models'目录
+        self.model_dir = 'models'  # 'models'目录
         self.log_dir = 'logs'
-        # self.save_interval = 10  # 每10个epoch保存一次
         
         # 随机种子
         self.random_seed = 42
@@ -75,7 +74,7 @@ def parse_args():
                        help='激活函数类型')
     
     # 训练参数
-    parser.add_argument('--epochs', type=int, default=100,  # 将默认训练轮数从50改为100
+    parser.add_argument('--epochs', type=int, default=100,  
                        help='训练轮数')
     parser.add_argument('--batch_size', type=int, default=64,
                        help='批次大小')
@@ -134,8 +133,6 @@ def parse_args():
                        help='模型保存目录')
     parser.add_argument('--log_dir', type=str, default='logs',
                        help='日志保存目录')
-    # parser.add_argument('--save_interval', type=int, default=10,
-    #                    help='模型保存间隔（epoch）')
     
     # 其他参数
     parser.add_argument('--seed', type=int, default=42,
@@ -235,7 +232,6 @@ def args_to_config(args):
     config.save_model = args.save_model
     config.model_dir = args.model_dir
     config.log_dir = args.log_dir
-    # config.save_interval = args.save_interval
     
     # 其他参数
     config.random_seed = args.seed
@@ -301,25 +297,3 @@ def print_config(config):
     print(f"验证集比例: {config.val_ratio}")
     
     print("=" * 60)
-
-
-if __name__ == "__main__":
-    # 测试配置功能
-    print("测试配置功能...")
-    
-    # 获取默认配置
-    config = get_config()
-    
-    # 打印配置
-    print_config(config)
-    
-    # 保存配置
-    save_config_to_file(config, 'config.json')
-    
-    # 加载配置
-    loaded_config = load_config_from_file('config.json')
-    if loaded_config:
-        print("\n配置加载测试成功!")
-        print(f"损失函数: {loaded_config.loss_function}")
-        print(f"优化器: {loaded_config.optimizer}")
-        print(f"正则化: {loaded_config.regularization}")
