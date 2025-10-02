@@ -13,7 +13,7 @@ class NeuralNetwork:
         初始化神经网络
         
         Args:
-            layer_sizes: 各层神经元数量，例如 [784, 512, 256, 10]
+            layer_sizes: 各层神经元数量，例如 [784, 256, 128, 10]
             activation: 激活函数类型 ('relu', 'tanh', 'sigmoid')
             weight_init: 权重初始化方法 ('xavier', 'he', 'random')
         """
@@ -238,61 +238,3 @@ class NeuralNetwork:
         
         print(f"总参数数量: {self.get_parameter_count():,}")
         print("=" * 50)
-
-
-def test_neural_network():
-    """测试神经网络"""
-    print("测试神经网络...")
-    
-    # 创建网络
-    layer_sizes = [784, 512, 256, 10]
-    network = NeuralNetwork(layer_sizes, activation='relu', weight_init='he')
-    
-    # 打印网络结构
-    network.summary()
-    
-    # 创建测试数据
-    batch_size = 32
-    X = np.random.randn(batch_size, 784)
-    y = np.random.randint(0, 10, batch_size)
-    
-    print(f"\n测试数据形状:")
-    print(f"  输入: {X.shape}")
-    print(f"  标签: {y.shape}")
-    
-    # 前向传播
-    print("\n前向传播测试:")
-    output = network.forward(X)
-    print(f"  输出形状: {output.shape}")
-    print(f"  输出范围: [{output.min():.4f}, {output.max():.4f}]")
-    print(f"  输出和: {np.sum(output, axis=1)[:5]}")  # 应该接近1（softmax）
-    
-    # 预测
-    print("\n预测测试:")
-    predictions = network.predict_classes(X)
-    print(f"  预测类别: {predictions[:10]}")
-    print(f"  预测形状: {predictions.shape}")
-    
-    # 反向传播测试
-    print("\n反向传播测试:")
-    # 模拟损失梯度（交叉熵的梯度）
-    batch_size = X.shape[0]
-    num_classes = 10
-    one_hot_y = np.zeros((batch_size, num_classes))
-    one_hot_y[np.arange(batch_size), y] = 1
-    
-    # 交叉熵损失对输出的梯度
-    loss_grad = (output - one_hot_y) / batch_size
-    
-    weight_grads, bias_grads = network.backward(X, y, loss_grad)
-    
-    print(f"  权重梯度数量: {len(weight_grads)}")
-    print(f"  偏置梯度数量: {len(bias_grads)}")
-    
-    for i, (w_grad, b_grad) in enumerate(zip(weight_grads, bias_grads)):
-        print(f"  第{i+1}层权重梯度范围: [{w_grad.min():.4f}, {w_grad.max():.4f}]")
-        print(f"  第{i+1}层偏置梯度范围: [{b_grad.min():.4f}, {b_grad.max():.4f}]")
-
-
-if __name__ == "__main__":
-    test_neural_network()

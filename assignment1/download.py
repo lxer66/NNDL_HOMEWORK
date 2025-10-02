@@ -183,23 +183,3 @@ def verify_data_integrity(data):
     
     print("数据完整性验证通过")
     return True
-
-
-if __name__ == "__main__":
-    # 测试下载和加载功能
-    data = load_mnist_data()
-    if data:
-        train_images = data['train_images']
-        train_labels = data['train_labels']
-        test_images = data['test_images']
-        test_labels = data['test_labels']
-        
-        if verify_data_integrity(data):
-            print("MNIST数据集加载成功！")
-            print(f"训练集: {train_images.shape}")
-            print(f"测试集: {test_images.shape}")
-            print(f"标签范围: {np.unique(train_labels)}")
-        else:
-            print("数据验证失败")
-    else:
-        print("数据加载失败")

@@ -212,39 +212,3 @@ def get_loss_function(loss_name):
         raise ValueError(f"不支持的损失函数: {loss_name}. 支持的损失函数: {list(loss_functions.keys())}")
     
     return loss_functions[loss_name]
-
-
-def test_loss_functions():
-    """测试损失函数"""
-    print("测试损失函数...")
-    
-    # 创建测试数据
-    batch_size = 4
-    num_classes = 3
-    
-    # 预测值（logits）
-    predictions = np.random.randn(batch_size, num_classes)
-    
-    # 真实标签（类别索引）
-    targets = np.array([0, 1, 2, 0])
-    
-    # 测试所有损失函数
-    loss_names = ['cross_entropy', 'mse', 'l1_loss']
-    
-    for loss_name in loss_names:
-        print(f"\n测试 {loss_name}:")
-        
-        loss_fn = get_loss_function(loss_name)
-        
-        # 前向传播
-        loss = loss_fn.forward(predictions, targets)
-        print(f"  损失值: {loss:.4f}")
-        
-        # 反向传播
-        gradients = loss_fn.backward(predictions, targets)
-        print(f"  梯度形状: {gradients.shape}")
-        print(f"  梯度范围: [{gradients.min():.4f}, {gradients.max():.4f}]")
-
-
-if __name__ == "__main__":
-    test_loss_functions()

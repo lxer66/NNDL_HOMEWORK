@@ -206,7 +206,7 @@ class DataAugmentation(Regularization):
     
     def _translate_image(self, img, dx, dy):
         """平移图像"""
-        # 简化版平移实现，避免导入scipy
+        # 简化的平移实现
         h, w = img.shape
         result = np.zeros_like(img)
         
@@ -225,10 +225,6 @@ class DataAugmentation(Regularization):
             result[dst_y1:dst_y2, dst_x1:dst_x2] = img[src_y1:src_y2, src_x1:src_x2]
         
         return result
-    
-    def _scale_image(self, img, scale):
-        """缩放图像"""
-        return img  # 移除缩放以提高速度
 
 
 def get_regularization(reg_name, **kwargs):
@@ -262,48 +258,3 @@ def get_regularization(reg_name, **kwargs):
         )
     else:
         raise ValueError(f"不支持的正则化方法: {reg_name}. 支持的方法: ['none', 'l1', 'l2', 'dropout', 'data_augmentation']")
-
-
-def test_regularization():
-    """测试正则化方法"""
-    print("测试正则化方法...")
-    
-    # 创建测试数据
-    weights = np.random.randn(10, 5)
-    activations = np.random.randn(32, 10)
-    images = np.random.rand(32, 784)  # 32张28x28图像
-    
-    # 测试L1正则化
-    print("\n测试L1正则化:")
-    l1_reg = L1Regularization(lambda_reg=0.01)
-    l1_grad = l1_reg.gradient(weights)
-    l1_penalty = l1_reg.penalty(weights)
-    print(f"  L1梯度范围: [{l1_grad.min():.4f}, {l1_grad.max():.4f}]")
-    print(f"  L1惩罚项: {l1_penalty:.4f}")
-    
-    # 测试L2正则化
-    print("\n测试L2正则化:")
-    l2_reg = L2Regularization(lambda_reg=0.01)
-    l2_grad = l2_reg.gradient(weights)
-    l2_penalty = l2_reg.penalty(weights)
-    print(f"  L2梯度范围: [{l2_grad.min():.4f}, {l2_grad.max():.4f}]")
-    print(f"  L2惩罚项: {l2_penalty:.4f}")
-    
-    # 测试Dropout
-    print("\n测试Dropout:")
-    dropout = Dropout(dropout_rate=0.5)
-    dropped_activations = dropout.apply(activations, training=True)
-    print(f"  原始激活值范围: [{activations.min():.4f}, {activations.max():.4f}]")
-    print(f"  Dropout后范围: [{dropped_activations.min():.4f}, {dropped_activations.max():.4f}]")
-    print(f"  零值比例: {np.mean(dropped_activations == 0):.2f}")
-    
-    # 测试数据增强
-    print("\n测试数据增强:")
-    data_aug = DataAugmentation(noise_std=0.01)
-    augmented_images = data_aug.apply(images, training=True)
-    print(f"  原始图像范围: [{images.min():.4f}, {images.max():.4f}]")
-    print(f"  增强后范围: [{augmented_images.min():.4f}, {augmented_images.max():.4f}]")
-
-
-if __name__ == "__main__":
-    test_regularization()

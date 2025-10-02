@@ -206,8 +206,6 @@ class Trainer:
         # 创建pictures目录
         os.makedirs('train_results', exist_ok=True)
         
-        # 学习率调度已移除
-        
         # 训练循环
         start_time = time.time()
         

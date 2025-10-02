@@ -223,28 +223,3 @@ def load_processed_data(filename='data/processed_mnist.pkl'):
     except FileNotFoundError:
         print(f"文件 {filename} 不存在，将重新预处理数据")
         return None
-
-
-if __name__ == "__main__":
-    # 测试数据预处理功能
-    print("测试数据预处理功能...")
-    
-    # 预处理数据
-    data = preprocess_mnist()
-    
-    # 显示数据信息
-    info = get_data_info(data)
-    print("\n数据集信息:")
-    for key, value in info.items():
-        print(f"  {key}: {value}")
-    
-    # 测试batch创建
-    print("\n测试batch创建...")
-    batches = create_batches(data['train_images'][:100], data['train_labels'][:100], 32)
-    print(f"创建了 {len(batches)} 个batch")
-    print(f"第一个batch形状: {batches[0][0].shape}, {batches[0][1].shape}")
-    
-    # 保存数据
-    save_processed_data(data)
-    
-    print("数据预处理测试完成!")

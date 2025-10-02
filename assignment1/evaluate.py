@@ -299,7 +299,7 @@ def print_evaluation_results(results, dataset_name='Dataset'):
     if abs(precision_val - accuracy_val) > 0.01:
         print(f"精确率: {results['precision']:.4f}")
     
-    # 删除召回率和F1-score，因为对于手写数字识别任务不是必需的
+    # 不使用召回率和F1-score，因为对于手写数字识别任务不是必需的
     print("=" * 50)
 
 
@@ -367,70 +367,3 @@ def class_wise_accuracy(results):
         class_accuracies[class_names[i]] = accuracy
     
     return class_accuracies
-
-
-def test_evaluation():
-    """测试评估功能"""
-    print("测试评估功能...")
-    
-    # 创建模拟数据
-    batch_size = 100
-    num_classes = 10
-    
-    # 模拟预测结果（概率分布）
-    predictions = np.random.rand(batch_size, num_classes)
-    predictions = predictions / np.sum(predictions, axis=1, keepdims=True)
-    
-    # 模拟真实标签（one-hot编码）
-    true_labels = np.zeros((batch_size, num_classes))
-    true_classes = np.random.randint(0, num_classes, batch_size)
-    true_labels[np.arange(batch_size), true_classes] = 1
-    
-    # 测试准确率
-    acc = accuracy(predictions, true_labels)
-    print(f"准确率: {acc:.4f}")
-    
-    # 测试精确率、召回率、F1分数
-    precision, recall, f1 = precision_recall_f1(predictions, true_labels)
-    print(f"精确率: {precision:.4f}")
-    print(f"召回率: {recall:.4f}")
-    print(f"F1分数: {f1:.4f}")
-    
-    # 测试混淆矩阵
-    cm, class_names = confusion_matrix(predictions, true_labels)
-    print(f"混淆矩阵形状: {cm.shape}")
-    print(f"类别名称: {class_names}")
-    
-    # 创建模拟评估结果
-    results = {
-        'loss': 0.5,
-        'accuracy': acc,
-        'precision': precision,
-        'recall': recall,
-        'f1_score': f1,
-        'confusion_matrix': cm,
-        'class_names': class_names,
-        'predictions': predictions,
-        'true_labels': true_labels
-    }
-    
-    # 打印评估结果
-    print_evaluation_results(results, "测试数据集")
-    
-    # 测试错误分类样本
-    misclassified_indices, pred_classes, true_classes = find_misclassified_samples(results, 5)
-    print(f"\n错误分类样本数量: {len(misclassified_indices)}")
-    if len(misclassified_indices) > 0:
-        print("前5个错误分类样本:")
-        for i in range(min(5, len(misclassified_indices))):
-            print(f"  样本 {misclassified_indices[i]}: 预测={pred_classes[i]}, 真实={true_classes[i]}")
-    
-    # 测试类别准确率
-    class_acc = class_wise_accuracy(results)
-    print(f"\n各类别准确率:")
-    for class_name, acc in class_acc.items():
-        print(f"  类别 {class_name}: {acc:.4f}")
-
-
-if __name__ == "__main__":
-    test_evaluation()
