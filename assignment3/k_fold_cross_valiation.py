@@ -4,11 +4,12 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader, Subset
 import numpy as np
+import os
+
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 def evaluate(net, data_iter, device=None):
-    """计算模型在数据集上的准确率"""
     net.eval()
     val_loss = 0
     acc_sum = 0
@@ -25,7 +26,7 @@ def evaluate(net, data_iter, device=None):
             num_samples += x.size(0)
     return val_loss / num_samples, acc_sum / num_samples
 
-def train(net, train_iter, val_iter, num_epochs, lr, device):
+def train_and_evaluate(net, train_iter, val_iter, num_epochs, lr, device,  weight_decay=0, dropout=0, is_max=False):
     def init_weights(m):
         if type(m) == nn.Linear or type(m) == nn.Conv2d:
             nn.init.xavier_uniform_(m.weight)
@@ -37,10 +38,11 @@ def train(net, train_iter, val_iter, num_epochs, lr, device):
         net.parameters(), 
         lr=lr, 
         momentum=0.9, 
-        weight_decay=1e-4
+        weight_decay=weight_decay
     )
     loss = nn.CrossEntropyLoss()
     val_loss, val_acc = 0, 0
+    max_val_acc = 0
     for epoch in range(num_epochs):
         net.train()
         train_loss = 0
@@ -59,9 +61,13 @@ def train(net, train_iter, val_iter, num_epochs, lr, device):
         train_loss = train_loss / train_num
         train_acc = train_acc / train_num
         val_loss, val_acc = evaluate(net, val_iter, device)
+        if is_max and val_acc > max_val_acc:
+            max_val_acc = val_acc
         if (epoch + 1) % 10 == 0:
             print(f'epoch {epoch + 1}, train loss {train_loss:.4f}, train acc {train_acc:.4f}, val loss {val_loss:.4f}, val acc {val_acc:.4f}')
-    return val_acc
+            with open('k_fold_cross_valiation.txt', 'a') as f:
+                f.write(f'epoch {epoch + 1}, train loss {train_loss:.4f}, train acc {train_acc:.4f}, val loss {val_loss:.4f}, val acc {val_acc:.4f}\n')
+    return max_val_acc if is_max else val_acc
 
 def k_fold_cross_validation(dataset, k_folds, num_epochs, lr, weight_decay=0, dropout=0, batch_size=64):
     dataset_size = len(dataset)
@@ -75,7 +81,8 @@ def k_fold_cross_validation(dataset, k_folds, num_epochs, lr, weight_decay=0, dr
     
     for fold in range(k_folds):
         print(f"正在进行第 {fold + 1} 折交叉验证...")
-        
+        with open('k_fold_cross_valiation.txt', 'a') as f:
+            f.write(f'正在进行第 {fold + 1} 折交叉验证...\n')
         val_start = fold * fold_size
         val_end = (fold + 1) * fold_size if fold < k_folds - 1 else dataset_size
         
@@ -85,12 +92,14 @@ def k_fold_cross_validation(dataset, k_folds, num_epochs, lr, weight_decay=0, dr
         train_subset = Subset(dataset, train_indices)
         val_subset = Subset(dataset, val_indices)
         
-        train_loader = DataLoader(train_subset, batch_size=batch_size, shuffle=True)
-        val_loader = DataLoader(val_subset, batch_size=batch_size, shuffle=False)
+        train_loader = DataLoader(train_subset, batch_size=batch_size, shuffle=True, num_workers=8, pin_memory=True)
+        val_loader = DataLoader(val_subset, batch_size=batch_size, shuffle=False, num_workers=8, pin_memory=True)
         net = resnet20()
-        val_acc = train(net, train_loader, val_loader, num_epochs, lr, device)
+        val_acc = train_and_evaluate(net, train_loader, val_loader, num_epochs, lr, device, weight_decay=weight_decay, is_max=True)
         fold_results.append(val_acc)
         print(f"第 {fold + 1} 折验证准确率: {val_acc:.4f}")
+        with open('k_fold_cross_valiation.txt', 'a') as f:
+            f.write(f'第 {fold + 1} 折验证准确率: {val_acc:.4f}\n')
     
     mean_acc = np.mean(fold_results)
     std_acc = np.std(fold_results)
@@ -98,17 +107,22 @@ def k_fold_cross_validation(dataset, k_folds, num_epochs, lr, weight_decay=0, dr
     print(f"{k_folds}折交叉验证结果:")
     print(f"各折验证准确率: {[f'{acc:.4f}' for acc in fold_results]}")
     print(f"平均准确率: {mean_acc:.4f} ± {std_acc:.4f}")
-    
+    with open('k_fold_cross_valiation.txt', 'a') as f:
+        f.write(f'{k_folds}折交叉验证结果:\n')
+        f.write(f'各折验证准确率: {[f'{acc:.4f}' for acc in fold_results]}\n')
+        f.write(f'平均准确率: {mean_acc:.4f}\n')
     return fold_results, mean_acc, std_acc
 
 if __name__ == "__main__":
-    for lr in [0.1, 0.01, 0.001, 0.0001]:
+    for lr in [0.1, 0.01, 0.001]:
         for weight_decay in [0.01, 0.001, 0.0001, 0.00001]:
             k_fold_results, mean_accuracy, std_accuracy = k_fold_cross_validation(
                 dataset=train_set,
-                k_folds=5,
-                num_epochs=30,  
+                k_folds=3,
+                num_epochs=100,  
                 lr=lr,
                 weight_decay=weight_decay
             )
             print(f'学习率为{lr}, 权重衰退为{weight_decay}时的平均准确率为{mean_accuracy}')
+            with open('k_fold_cross_valiation.txt', 'a') as f:
+                f.write(f'学习率为{lr}, 权重衰退为{weight_decay}时的平均准确率为{mean_accuracy}\n \n')

@@ -1,0 +1,2 @@
+models/resnet20_sgd_lr0.1_momentum0.9_wd1e-05.pth test accuracy 0.7982
+models/resnet20_sgd_lr0.1_momentum0.9_wd0.0001.pth test accuracy 0.7423
