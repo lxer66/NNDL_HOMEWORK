@@ -1,5 +1,4 @@
 from model import resnet20
-from datasets import train_loader
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, Subset
@@ -8,7 +7,7 @@ import os
 import matplotlib.pyplot as plt
 
 
-def train(net, train_iter, num_epochs, lr, device, weight_decay=0, dropout=0):
+def train(net, train_iter, num_epochs, lr, device, weight_decay=0, dropout=0, normalization='bn'):
     def init_weights(m):
         if type(m) == nn.Linear or type(m) == nn.Conv2d:
             nn.init.xavier_uniform_(m.weight)
@@ -56,16 +55,16 @@ def train(net, train_iter, num_epochs, lr, device, weight_decay=0, dropout=0):
         os.makedirs('models')
     
     # 保存模型，使用优化器参数命名
-    model_name = f"resnet20_sgd_lr{lr}_momentum0.9_wd{weight_decay}.pth"
+    model_name = f"resnet20_lr{lr}_momentum0.9_wd{weight_decay}_dropout{dropout}_{normalization}normalization.pth"
     model_path = os.path.join('models', model_name)
     torch.save(net.state_dict(), model_path)
     print(f"模型已保存为 {model_path}")
     
-    plot_training_curves(train_losses, train_accuracies, lr, weight_decay, dropout)
+    plot_training_curves(train_losses, train_accuracies, lr, weight_decay, dropout, normalization=normalization)
     
     return train_losses, train_accuracies
 
-def plot_training_curves(train_losses, train_accuracies, lr, weight_decay, dropout):
+def plot_training_curves(train_losses, train_accuracies, lr, weight_decay, dropout, normalization='bn'):
     epochs = range(1, len(train_losses) + 1)
     
     fig, ax1 = plt.subplots(figsize=(10, 6))
@@ -95,13 +94,13 @@ def plot_training_curves(train_losses, train_accuracies, lr, weight_decay, dropo
     ax1.grid(True, alpha=0.3)
     
     # 设置标题
-    plt.title(f'Training Curves - LR:{lr}, WD:{weight_decay}, DO:{dropout}')
+    plt.title(f'Training Curves - LR:{lr}, WD:{weight_decay}, DO:{dropout}, NO:{normalization}')
     
     # 保存图形到pictures文件夹
     if not os.path.exists('pictures'):
         os.makedirs('pictures')
         
-    filename = f"resnet20_sgd_lr{lr}_momentum0.9_wd{weight_decay}.png"
+    filename = f"resnet20_lr{lr}_momentum0.9_wd{weight_decay}_dropout{dropout}_{normalization}normalization.png"
     filepath = os.path.join('pictures', filename)
     plt.tight_layout()
     plt.savefig(filepath)
@@ -110,7 +109,14 @@ def plot_training_curves(train_losses, train_accuracies, lr, weight_decay, dropo
 
 
 if __name__ == "__main__":
+    from datasets import train_loader
     ResNet20 = resnet20()
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    train(ResNet20, train_loader, 80, lr=0.1, device=device, weight_decay=1e-5)
-    train(ResNet20, train_loader, 150, lr=0.1, device=device, weight_decay=1e-4)
+    train(ResNet20, train_loader, 100, lr=0.1, device=device, weight_decay=1e-5, dropout=0, normalization='bn')
+    train(ResNet20, train_loader, 100, lr=0.1, device=device, weight_decay=1e-5, dropout=0.1, normalization='bn')
+    train(ResNet20, train_loader, 100, lr=0.1, device=device, weight_decay=1e-5, dropout=0.5, normalization='bn')
+    train(ResNet20, train_loader, 100, lr=0.1, device=device, weight_decay=1e-5, dropout=0, normalization='ln')
+    train(ResNet20, train_loader, 100, lr=0.1, device=device, weight_decay=1e-5, dropout=0, normalization='gn')
+    train(ResNet20, train_loader, 100, lr=0.1, device=device, weight_decay=1e-5, dropout=0, normalization='in')
+    train(ResNet20, train_loader, 100, lr=0.1, device=device, weight_decay=1e-5, dropout=0, normalization='lrn')
+    train(ResNet20, train_loader, 100, lr=0.1, device=device, weight_decay=1e-5, dropout=0, normalization='none')

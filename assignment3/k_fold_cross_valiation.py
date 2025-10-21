@@ -115,13 +115,14 @@ def k_fold_cross_validation(dataset, k_folds, num_epochs, lr, weight_decay=0, dr
 
 if __name__ == "__main__":
     for lr in [0.1, 0.01, 0.001]:
-        for weight_decay in [0.01, 0.001, 0.0001, 0.00001]:
+        for weight_decay in [0.001, 0.0001, 0.00001]:
             k_fold_results, mean_accuracy, std_accuracy = k_fold_cross_validation(
                 dataset=train_set,
                 k_folds=3,
                 num_epochs=100,  
                 lr=lr,
-                weight_decay=weight_decay
+                weight_decay=weight_decay,
+                batch_size=128
             )
             print(f'学习率为{lr}, 权重衰退为{weight_decay}时的平均准确率为{mean_accuracy}')
             with open('k_fold_cross_valiation.txt', 'a') as f:
