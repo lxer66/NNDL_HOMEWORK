@@ -146,19 +146,14 @@ def optimized_train(net, train_iter, num_epochs, lr, device, weight_decay=0, dro
         print(f'train loss {train_loss:.4f}, train acc {train_acc:.4f}')
         lr_scheduler.step()
 
-
-    # 创建models文件夹（如果不存在）
     if not os.path.exists('models'):
         os.makedirs('models')
     
-    # 保存模型，使用优化器参数命名
     model_name = f"optimized_resnet20.pth"
     model_path = os.path.join('models', model_name)
     torch.save(net.state_dict(), model_path)
     print(f"模型已保存为 {model_path}")
-    
     plot_training_curves(train_losses, train_accuracies, lr, weight_decay, dropout, normalization=normalization)
-    
     return train_losses, train_accuracies
 
 

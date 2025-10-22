@@ -30,16 +30,12 @@ if __name__ == "__main__":
     net = resnet20()
     from datasets import test_loader
     
-    # 获取所有模型文件路径
     model_files = []
     if os.path.isfile(args.model_path):
-        # 如果提供了单个模型文件路径，则只测试该文件
         model_files = [args.model_path]
     else:
-        # 否则测试models目录下的所有.pth文件
         model_files = glob.glob(os.path.join(args.models_dir, "*.pth"))
     
-    # 测试所有模型文件
     for model_file in model_files:
         if model_file == 'models/optimized_resnet20.pth':
             continue
