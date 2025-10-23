@@ -9,6 +9,7 @@ import os
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
+# 评估模型在验证集上的性能
 def evaluate(net, data_iter, device=None):
     net.eval()
     val_loss = 0
@@ -26,6 +27,7 @@ def evaluate(net, data_iter, device=None):
             num_samples += x.size(0)
     return val_loss / num_samples, acc_sum / num_samples
 
+# 训练并评估模型
 def train_and_evaluate(net, train_iter, val_iter, num_epochs, lr, device,  weight_decay=0, dropout=0, is_max=False):
     def init_weights(m):
         if type(m) == nn.Linear or type(m) == nn.Conv2d:
@@ -69,6 +71,7 @@ def train_and_evaluate(net, train_iter, val_iter, num_epochs, lr, device,  weigh
                 f.write(f'epoch {epoch + 1}, train loss {train_loss:.4f}, train acc {train_acc:.4f}, val loss {val_loss:.4f}, val acc {val_acc:.4f}\n')
     return max_val_acc if is_max else val_acc
 
+# K折交叉验证实现
 def k_fold_cross_validation(dataset, k_folds, num_epochs, lr, weight_decay=0, dropout=0, batch_size=64):
     dataset_size = len(dataset)
     fold_size = dataset_size // k_folds
@@ -113,6 +116,7 @@ def k_fold_cross_validation(dataset, k_folds, num_epochs, lr, weight_decay=0, dr
         f.write(f'平均准确率: {mean_acc:.4f}\n')
     return fold_results, mean_acc, std_acc
 
+# 主程序：对不同超参数组合进行K折交叉验证
 if __name__ == "__main__":
     for lr in [0.1, 0.01, 0.001]:
         for weight_decay in [0.001, 0.0001, 0.00001]:

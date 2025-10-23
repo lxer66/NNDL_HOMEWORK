@@ -4,6 +4,7 @@ import argparse
 import os
 import glob
 
+# 测试模型性能
 def test(net, test_iter, model_path):
     net.load_state_dict(torch.load(model_path))
     net.eval()
@@ -19,6 +20,7 @@ def test(net, test_iter, model_path):
             test_num += x.size(0)
     return test_acc / test_num
 
+# 主程序：测试所有模型或指定模型
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Test ResNet20 on CIFAR-10')
     parser.add_argument('--model_path', type=str, default='', 

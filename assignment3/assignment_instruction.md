@@ -162,6 +162,14 @@ assignment3/
 
 **这些优化措施显著提升了模型性能，使测试准确率从基础模型的约84%提升至91.94%。**
 
+### 2.6 实验执行命令
+```
+python dataset.py
+python k_fold_cross_validation.py
+python train_compare.py
+python test.py
+python optimization_work.py
+```
 ## 3. 实验结果
 
 ### 3.1 超参数选择结果（保存在k_fold_cross_validation.txt中）
@@ -259,7 +267,7 @@ assignment3/
 **本实验设计和实现基于ResNet-20的CIFAR-10图像分类器。我首先实现了基础的ResNet-20模型，通过K折交叉验证选择了超参数组合（学习率0.1，权重衰减1e-5），并对比了多种Normalization方法和Dropout的影响。随后，我参考ResNet原始论文和Github开源项目对模型和训练策略进行了优化，包括移除冗余bias参数、使用Kaiming初始化、引入学习率衰减策略、增加训练轮数和采用数据增强技术等，使模型测试准确率从约84%提升至91.94%。
 通过本次实验，我加深了对卷积神经网络结构、K折交叉验证、正则化、训练过程的理解，以及对常用的经典的模型优化以及训练策略有了更多的认识和实践的经验，同时实现了对论文一部分内容的复现，收获颇多。**
 
-**大模型使用情况：在本assignment中，大模型主要用于查找资料，获得建议，撰写非代码的文档。代码中少数的函数和细节使用了大模型的辅助。代码中的大部分内容均为自己实现或者参考Github项目[^2].**
+**大模型使用情况：在本assignment中，大模型主要用于查找资料，获得建议，撰写注释和非代码的文档。代码中少数的函数和细节使用了大模型的辅助。代码中的大部分内容均为自己实现或者参考Github项目[^2].**
 
 ## 参考文献
 [^1]: Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Deep residual learning for image recognition. [arXiv:1512.03385](https://arxiv.org/abs/1512.03385)

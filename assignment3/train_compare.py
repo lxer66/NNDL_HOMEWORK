@@ -7,6 +7,7 @@ import os
 import matplotlib.pyplot as plt
 
 
+# 训练模型并保存结果
 def train(net, train_iter, num_epochs, lr, device, weight_decay=0, dropout=0, normalization='bn'):
     def init_weights(m):
         if type(m) == nn.Linear or type(m) == nn.Conv2d:
@@ -62,6 +63,7 @@ def train(net, train_iter, num_epochs, lr, device, weight_decay=0, dropout=0, no
     
     return train_losses, train_accuracies
 
+# 绘制训练曲线
 def plot_training_curves(train_losses, train_accuracies, lr, weight_decay, dropout, normalization='bn'):
     epochs = range(1, len(train_losses) + 1)
     
@@ -99,6 +101,7 @@ def plot_training_curves(train_losses, train_accuracies, lr, weight_decay, dropo
     print(f"训练曲线已保存为 {filepath}")
 
 
+# 主程序：训练不同配置的模型进行比较
 if __name__ == "__main__":
     from datasets import train_loader
     ResNet20 = resnet20()

@@ -9,7 +9,7 @@ import torch
 import os
 import matplotlib.pyplot as plt
 
-# Data augmentation and preprocessing
+# 数据增强和预处理：使用ImageNet的均值和标准差进行标准化，并使用随机翻转和裁剪
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 transform = transforms.Compose([
         transforms.RandomHorizontalFlip(),
@@ -38,13 +38,14 @@ test_set = torchvision.datasets.CIFAR10(
 train_loader = DataLoader(train_set, batch_size=128, shuffle=True, num_workers=8, pin_memory=True)
 test_loader = DataLoader(test_set, batch_size=128, shuffle=False, num_workers=8, pin_memory=True)
 
-# optimized model
+# 优化版ResNet残差块
 class optimized_resnet_block(nn.Module):
     def __init__(self, input_channels, output_channels, downsample=False, normalization='bn'):
         super().__init__()
         self.downsample = downsample
         self.normalization = normalization
         stride = 2 if downsample else 1
+        # 使用bias=False，因为后面有归一化层
         self.conv1 = nn.Conv2d(input_channels, output_channels, kernel_size=3, stride=stride, padding=1, bias=False)
         self.norm1 = get_norm_layer(normalization, output_channels)
         self.conv2 = nn.Conv2d(output_channels, output_channels, kernel_size=3, stride=1, padding=1, bias=False)
@@ -66,6 +67,7 @@ class optimized_resnet_block(nn.Module):
         out = F.relu(out)
         return out
 
+# 优化版ResNet-20模型
 class optimized_resnet20(nn.Module):
     def __init__(self, dropout=0, normalization='bn'):
         super().__init__()
@@ -100,7 +102,7 @@ class optimized_resnet20(nn.Module):
         return out
 
 
-# optimized training
+# 优化训练过程
 def optimized_train(net, train_iter, num_epochs, lr, device, weight_decay=0, dropout=0, normalization='bn'):
     def init_weights(m):
         if type(m) == nn.Linear or type(m) == nn.Conv2d:
@@ -115,6 +117,7 @@ def optimized_train(net, train_iter, num_epochs, lr, device, weight_decay=0, dro
         momentum=0.9,
         weight_decay=1e-4
     )
+    # 学习率调度器：在第100和150轮时降低学习率
     lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(
         optimizer,
         milestones=[100, 150], 
@@ -157,6 +160,7 @@ def optimized_train(net, train_iter, num_epochs, lr, device, weight_decay=0, dro
     return train_losses, train_accuracies
 
 
+# 测试优化模型
 def optimized_test(net, test_iter, model_path='models/optimized_resnet20.pth'):
     net.load_state_dict(torch.load(model_path))
     net.eval()
@@ -174,6 +178,7 @@ def optimized_test(net, test_iter, model_path='models/optimized_resnet20.pth'):
     accuracy = test_acc / test_num
     return accuracy
 
+# 主程序：训练和测试优化模型
 if __name__ == "__main__":
     optimized_ResNet20 = optimized_resnet20()
     device = 'cuda' if torch.cuda.is_available() else 'cpu'

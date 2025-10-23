@@ -2,6 +2,7 @@ from torch import nn
 import torch.nn.functional as F
 import torch
 
+# 根据类型返回对应的归一化层
 def get_norm_layer(norm_type, num_features):
     if norm_type == 'bn':
         return nn.BatchNorm2d(num_features)
@@ -18,6 +19,7 @@ def get_norm_layer(norm_type, num_features):
     else:
         raise ValueError(f"Unsupported normalization type: {norm_type}")
 
+# ResNet残差块实现
 class resnet_block(nn.Module):
     def __init__(self, input_channels, output_channels, downsample=False, normalization='bn'):
         super().__init__()
@@ -31,6 +33,7 @@ class resnet_block(nn.Module):
         self.conv2 = nn.Conv2d(output_channels, output_channels, kernel_size=3, stride=1, padding=1)
         self.norm2 = get_norm_layer(normalization, output_channels)
         
+        # 下采样时使用1x1卷积调整维度
         if downsample:
             self.sc = nn.Conv2d(input_channels, output_channels, kernel_size=1, stride=2)
             self.norm_sc = get_norm_layer(normalization, output_channels)
@@ -53,12 +56,14 @@ class resnet_block(nn.Module):
         
         return out
 
+# ResNet-20模型实现
 class resnet20(nn.Module):
     def __init__(self, dropout=0, normalization='bn'):
         super().__init__()
         self.conv = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1)
         self.normalization = normalization
         
+        # 9个残差块：3组，每组3个
         self.blocks = nn.Sequential(
             resnet_block(16, 16, normalization=normalization),
             resnet_block(16, 16, normalization=normalization),
@@ -73,6 +78,7 @@ class resnet20(nn.Module):
             resnet_block(64, 64, normalization=normalization)
         )
         
+        # 分类器：全局平均池化 + 全连接
         self.classifier = nn.Sequential(
             nn.AdaptiveAvgPool2d((1, 1)),
             nn.Flatten(),
