@@ -1,29 +1,30 @@
 import torch
 
 # --- 路径配置 ---
-DATA_PATH = './data'
-OUT_DIR = './output'
-WEIGHTS_DIR = './weights'
-INFERENCE_DIR = './inference_results'
+DATA_PATH = './data'            # 数据集存储路径
+OUT_DIR = './output'            # 输出图片保存路径
+WEIGHTS_DIR = './weights'       # 模型权重保存路径
+INFERENCE_DIR = './inference_results'  # 推理结果保存路径
 
 # --- 硬件配置 ---
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # 自动选择 GPU 或 CPU
 
 # --- 训练参数 (SNGAN / BigGAN Best Practices) ---
-BATCH_SIZE = 128       # 128 是 CIFAR-10 生成任务的甜点
-EPOCHS = 200           # 训练更久以获得最佳 FID
-N_CRITIC = 5           # [关键] 判别器跑 5 步，生成器跑 1 步
+BATCH_SIZE = 128                # 每批次训练样本数
+EPOCHS = 200                    # 总训练轮数
+N_CRITIC = 5                    # 判别器每训练 5 次，生成器训练 1 次
 
 # --- 学习率 (TTUR) ---
-LR_G = 2e-4
-LR_D = 2e-4
-BETA1 = 0.0            # 必须为 0.0
-BETA2 = 0.9
+LR_G = 2e-4                     # 生成器学习率
+LR_D = 2e-4                     # 判别器学习率
+BETA1 = 0.0                     # Adam 优化器的 beta1 参数
+BETA2 = 0.9                     # Adam 优化器的 beta2 参数
 
 # --- 模型架构 ---
-IMAGE_SIZE = 32
-NZ = 128               # 潜在向量
-NGF = 256              # [加强] 生成器通道数 (你有32G显存，直接拉满)
-NDF = 256              # [加强] 判别器通道数 (直接拉满)
+IMAGE_SIZE = 32                 # 输入图片尺寸 (宽/高)
+NZ = 128                        # 潜在向量维度
+NGF = 256                       # 生成器特征图通道数
+NDF = 256                       # 判别器特征图通道数
 
+# 打印配置信息
 print(f"Config: {DEVICE} | Batch: {BATCH_SIZE} | Channels: {NGF}/{NDF} | n_critic: {N_CRITIC}")

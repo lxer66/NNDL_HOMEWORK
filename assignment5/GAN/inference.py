@@ -1,3 +1,4 @@
+# 导入必要的库和模块
 import torch
 import torch.nn.functional as F
 import torchvision.utils as vutils
@@ -7,10 +8,10 @@ import argparse
 import config
 from model import Generator
 
-# --- 用户设定 (默认值) ---
-MODEL_PATH = f'{config.WEIGHTS_DIR}/netG_final.pth' # 读取最终模型
-NUM_IMAGES = 16   # 一次生成多少张
-GRID_ROW = 4      # 网格行数
+# --- (默认值) ---
+MODEL_PATH = f'{config.WEIGHTS_DIR}/netG_final.pth' # 模型权重路径
+NUM_IMAGES = 100   # 一次生成图片数量
+GRID_ROW = 10      # 图片网格行数
 
 def inference(target_size):
     # 1. 准备环境
@@ -34,7 +35,7 @@ def inference(target_size):
     print(f"Target Output Size: {target_size}x{target_size}")
 
     with torch.no_grad():
-        # 每次运行 inference，这里的 z 都是随机新生成的
+        # 随机生成潜在向量 z
         z = torch.randn(NUM_IMAGES, config.NZ, device=device)
         
         # 生成原始 32x32 图像 (Range: [-1, 1])
@@ -43,7 +44,7 @@ def inference(target_size):
         # 转换范围从 [-1, 1] 到 [0, 1] 以便后续处理和保存
         fake_imgs = (fake_imgs + 1) / 2.0
         
-        # 3. 调整大小 (如果有需要)
+        # 3. 调整大小 (如果目标尺寸不是 32)
         if target_size != 32:
             # 使用 Bicubic 插值放大，效果比较平滑
             output_imgs = F.interpolate(fake_imgs, size=(target_size, target_size), mode='bicubic', align_corners=False)
@@ -58,7 +59,6 @@ def inference(target_size):
         print(f"Result saved to {save_path}")
         
         # 5. 展示图片
-        # 读取刚刚保存的图片文件来展示 (这样能保证展示的和保存的一模一样)
         try:
             img_grid = plt.imread(save_path)
             plt.figure(figsize=(10, 10))
