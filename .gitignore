@@ -1,0 +1,17 @@
+*.pyc
+__pycache__/
+*.pkl
+*.gz
+*.pth
+*.pt
+*.h5
+*.ckpt
+*.zip
+*.tar
+*.tar.gz
+*.xml
+*.iml
+*.html
+*.ipynb_checkpoints
+assignments*/data/
+assignments*/*/data/
